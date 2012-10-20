@@ -24,14 +24,11 @@ protected:
     POSITION    m_pos;       // 存放棋子的位置
     HWND        m_hPieceWnd; // 存放棋子所对应的窗口的句柄
 public:
-    // 记录现在是否有玩家正处于走子状态,true为有，false为没有
-    // 防止两个玩家的棋子同时走动
     static bool s_bIsMoving;
-
 public:
     CChessPiece(const int cnIdx);
     ~CChessPiece();
-    HWND GetPieceWnd(); // 返回保护成员变量m_hPieceWnd
+    HWND GetPieceWnd(); // m_hPieceWnd
     virtual void New (const POSITION cpos) = 0; // 在pos处新建一枚棋子
     virtual void Move(const DIRECTION cdirect) = 0; // 棋子移动
     // 在ShowMoving()中被调用，用于销毁被吃棋子

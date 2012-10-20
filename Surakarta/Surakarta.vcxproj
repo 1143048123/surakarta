@@ -11,13 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{75A9E805-EC41-4030-8FC4-37263D643FDF}</ProjectGuid>
+    <ProjectGuid>{AF1FFD3A-639B-4817-87EB-FBC647D5B8B2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Surakarta</RootNamespace>
-    <SccProjectName>SAK</SccProjectName>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -51,11 +47,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -65,12 +61,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -80,7 +76,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <ClCompile Include="CChessPiece.cpp" />
+    <ClCompile Include="CPath.cpp" />
+    <ClCompile Include="Evaluation.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Surakarta.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CChessPiece.h" />
@@ -92,17 +92,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CChessPiece.cpp" />
-    <ClCompile Include="CPath.cpp" />
-    <ClCompile Include="Evaluation.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Surakarta.cpp" />
+    <ResourceCompile Include="Surakarta.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Surakarta.rc" />
+    <Media Include="Resources\Sounds\move.wav" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Icon\App.ico" />
@@ -110,9 +103,6 @@
     <Image Include="Resources\Images\me.bmp" />
     <Image Include="Resources\Images\path.bmp" />
     <Image Include="Resources\Images\player.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="Resources\Sounds\move.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

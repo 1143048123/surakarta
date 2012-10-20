@@ -15,38 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Surakarta.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CChessPiece.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CPath.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Evaluation.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Surakarta.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CChessPiece.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -56,6 +24,35 @@
     <ClCompile Include="Evaluation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Surakarta.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CChessPiece.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CPath.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Evaluation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Surakarta.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Surakarta.rc">
@@ -63,9 +60,11 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\Icon\App.ico">
+    <Media Include="Resources\Sounds\move.wav">
       <Filter>资源文件</Filter>
-    </Image>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
     <Image Include="Resources\Images\bg.bmp">
       <Filter>资源文件</Filter>
     </Image>
@@ -78,10 +77,8 @@
     <Image Include="Resources\Images\player.bmp">
       <Filter>资源文件</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="Resources\Sounds\move.wav">
+    <Image Include="Resources\Icon\App.ico">
       <Filter>资源文件</Filter>
-    </Media>
+    </Image>
   </ItemGroup>
 </Project>
