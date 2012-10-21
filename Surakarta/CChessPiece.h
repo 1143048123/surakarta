@@ -1,9 +1,10 @@
-/*!@file
+/*!@file CChessPiece.h
 *******************************************************************************
-文件名: CChessPiece.h
-功能:   完成对棋子类CChessPiece的的声明, 包括机器棋子类和人棋子类
-作者:   姚玉亮
+功能:   所有棋子类的声明部分, 包括机器棋子类和人棋子类以及棋子类的共性
+作者:   rookie2(rookie2@163.com)
 备注:
+最近修改时间: 2012年10月21日
+修改内容: 对注释的修改
 ******************************************************************************/
 
 #pragma once
@@ -11,65 +12,60 @@
 #include "surakarta.h"
 #include "CPath.h"
 
-/*!@class
+/*!@class CChessPiece
 *******************************************************************************
-类名: CChessPiece
-作者: 姚玉亮
+作者: rookie2(rookie2@163.com)
 描述: 封装了一颗棋子所必须的基本属性和方法
 ******************************************************************************/
 class CChessPiece
 {
 protected:
-    const int   m_cnIdx;
-    POSITION    m_pos;       // 存放棋子的位置
-    HWND        m_hPieceWnd; // 存放棋子所对应的窗口的句柄
+    const int   m_cnIdx;     // 常量,用于标识所创建的对象
+    POSITION    m_pos;       // 存储所在位置
+    HWND        m_hPieceWnd; // 存储棋子的窗口句柄
 public:
-    static bool s_bIsMoving;
+    static bool s_bIsMoving; // 记录当前是否有该类对象处于占用ShowMoving线程
 public:
     CChessPiece(const int cnIdx);
     ~CChessPiece();
-    HWND GetPieceWnd(); // m_hPieceWnd
-    virtual void New (const POSITION cpos) = 0; // 在pos处新建一枚棋子
-    virtual void Move(const DIRECTION cdirect) = 0; // 棋子移动
-    // 在ShowMoving()中被调用，用于销毁被吃棋子
+    HWND GetPieceWnd();
+    virtual void New (const POSITION cpos) = 0;
+    virtual void Move(const DIRECTION cdirect) = 0;
     void BeEaten();
 };
 
-/*!@class
+/*!@class CMacPiece
 *******************************************************************************
-类名: CMacPiece
-作者: 姚玉亮
+作者: rookie2(rookie2@163.com)
 描述: 继承至CChesePiece,封装了机器棋子所必须的基本属性和方法
 ******************************************************************************/
 class CMacPiece: public CChessPiece
 {
 private:
-    CMachinePath m_path; // 棋子所有方向的走子路径
+    CMachinePath m_path; // 存储路径
 public:
     CMacPiece(const int cnIdx);
-    void New (const POSITION cpos); // 在位置cpos处新建一颗棋子
-    void Move(const DIRECTION cdirect); // 棋子根据代入的方向移动
-    void Move(PATH path); // 棋子根据所代入的路径移动
-    void Fly (); // 搜索可飞行的路径
-
+    void New (const POSITION cpos);
+    void Move(const DIRECTION cdirect);
+    void Move(PATH path);
+    void Fly ();
 };
 
-/*!@class
+/*!@class CManPiece
 *******************************************************************************
-类名: CManPiece
-作者: 姚玉亮
+作者: rookie2(rookie2@163.com)
 描述: 继承至CChessPiece,封装了人的棋子所必须的基本属性和方法
 ******************************************************************************/
 class CManPiece: public CChessPiece
 {
 private:
-    static HWND s_hFlagWnd;
+    static HWND s_hFlagWnd; // 标记的窗口句柄,用于标记玩家哪颗棋子被选中
 public:
+    /* 玩家当前被选中棋子的索引值, 即棋子对象初始化时的常量索引值 */
     static int s_nCurBeSelectedPieceIndex;
-
 public:
     CManPiece(const int cnIdx);
-    void New (const POSITION cpos);  // 在位置cpos处新建一颗棋子
-    void Move(const DIRECTION cdirect); // 棋子根据代入的方向移动
-    void BeSelected(); // 用户点击选中当前棋子时调用，用于标记出当前棋子所有的走子路径
+    void New (const POSITION cpos);
+    void Move(const DIRECTION cdirect);
+    void BeSelected();
 };

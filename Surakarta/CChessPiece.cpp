@@ -1,21 +1,26 @@
 /*!@file CChessPiece.cpp
 *******************************************************************************
 功能:   完成对棋子类的具体定义,包括机器棋子类和人棋子类
-作者:   姚玉亮
+作者:   rookie2(rookie2@163.com)
 备注:
+最后修改时期: 2012年10月21日
+修改内容: 重新注释
 ******************************************************************************/
 
 #include "stdafx.h"
 #include "surakarta.h"
 #include "CChessPiece.h"
 
-// 函数声明
-
+/**
+ * 函数声明
+ */
 void   AddLog(TCHAR *str);
 DWORD  CALLBACK ShowMoving(LPVOID param);
 VOID   Delay( int );
 
-// 变量声明与定义
+/**
+ * 变量声明与定义
+ */
 
 /* x值变化表: x = 123 + j * 56; */
 static int x_table[] = { 123, 179, 235, 291, 347, 403,
@@ -32,12 +37,7 @@ static int y_table[] = { 120, 120, 120, 120, 120, 120,
                   344, 344, 344, 344, 344, 344,
                   400, 400, 400, 400, 400, 400 };
 
-/*!@variable CChessPiece::s_bIsMoving
-*******************************************************************************
-CChessPiece类的静态变量.
-用于记录当前是否有该类对象正处于占用ShowMoving线程,默认为false表没有.
-******************************************************************************/
-bool CChessPiece::s_bIsMoving = false;
+bool CChessPiece::s_bIsMoving = false; // 记录当前是否有该类对象处于占用ShowMoving线程
 
 /*!@function CChessPiece
 *******************************************************************************
@@ -47,7 +47,7 @@ bool CChessPiece::s_bIsMoving = false;
 CChessPiece::CChessPiece(const int c_nIdx) : m_cnIdx(c_nIdx)
 {}
 
-/* destructor of CChessPiece class*/
+/* destructor of CChessPiece class */
 CChessPiece::~CChessPiece()
 {
     DestroyWindow(m_hPieceWnd);
@@ -107,12 +107,6 @@ void CMacPiece::New(const POSITION c_pos)
 
     HCURSOR hCur = LoadCursor(NULL, IDC_HAND);
     SetClassLong( m_hPieceWnd, GCL_HCURSOR, (LONG)hCur); // 重设光标在按钮上的形状为手形
-    /*
-    HDC hdc = GetDC(m_hPieceWnd);
-    g_memPieceWndDC = CreateCompatibleDC(hdc); // 为按钮DC创建相应大小的内存DC
-    ReleaseDC(m_hPieceWnd, hdc);
-    */
-    
 }
 
 /*!@function Move
@@ -140,7 +134,6 @@ void CMacPiece::Move(const DIRECTION c_direct)
 ******************************************************************************/
 void CMacPiece::Move(PATH path)
 {
-
     while(CChessPiece::s_bIsMoving == true)
     {
         Sleep(2);
