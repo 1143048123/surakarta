@@ -36,56 +36,32 @@ static int y_table[] = { 120, 120, 120, 120, 120, 120,
                   288, 288, 288, 288, 288, 288,
                   344, 344, 344, 344, 344, 344,
                   400, 400, 400, 400, 400, 400 };
+/* 记录当前是否有该类对象处于占用ShowMoving线程 */
+bool CChessPiece::s_bIsMoving = false;
 
-bool CChessPiece::s_bIsMoving = false; // 记录当前是否有该类对象处于占用ShowMoving线程
-
-/*!@function CChessPiece
-*******************************************************************************
-功能: constructor of class CChessPiece
-参数: c_nIdx [in] 该对象的固定索引值,用于唯一标识当前所创建的对象
-******************************************************************************/
-CChessPiece::CChessPiece(const int c_nIdx) : m_cnIdx(c_nIdx)
+CChessPiece::CChessPiece(const int c_nIdx) : m_c_nIdx(c_nIdx)
 {}
 
-/* destructor of CChessPiece class */
 CChessPiece::~CChessPiece()
 {
     DestroyWindow(m_hPieceWnd);
     m_hPieceWnd = NULL;
 }
 
-/*!@function GetPieceWnd
-*******************************************************************************
-功能:返回棋子窗口句柄
-******************************************************************************/
 HWND CChessPiece::GetPieceWnd()
 {
     return m_hPieceWnd;
 }
 
-/*!@function BeEaten
-*******************************************************************************
-功能: 棋子被吃时调用,用于销毁棋子窗口
-******************************************************************************/
 void CChessPiece::BeEaten()
 {
     SendMessage(g_hBoardWnd, WM_EATEN, NULL, (LPARAM)m_hPieceWnd);
     m_hPieceWnd = NULL;
 }
 
-/*!@function CMacPiece
-*******************************************************************************
-功能: Constructor of CMacPiece
-参数: [in] c_nIdx 该对象的固定索引值,用于唯一标识当前所创建的对象
-******************************************************************************/
 CMacPiece::CMacPiece(const int c_nIdx) : CChessPiece(c_nIdx)
 {}
 
-/*!@function New
-*******************************************************************************
-功能: 创建一个新的机器方棋子
-参数: c_pos [in] 初始化棋子的位置
-******************************************************************************/
 void CMacPiece::New(const POSITION c_pos)
 {
     m_pos = c_pos;  // 记录当前棋子位置
@@ -109,11 +85,6 @@ void CMacPiece::New(const POSITION c_pos)
     SetClassLong( m_hPieceWnd, GCL_HCURSOR, (LONG)hCur); // 重设光标在按钮上的形状为手形
 }
 
-/*!@function Move
-*******************************************************************************
-功能: 在棋盘上显示棋子的移动过程
-参数: c_direct [in] 棋子移动的方向值
-******************************************************************************/
 void CMacPiece::Move(const DIRECTION c_direct)
 {
     PATH path;
@@ -127,11 +98,6 @@ void CMacPiece::Move(const DIRECTION c_direct)
     CreateThread(NULL, 0, ShowMoving, m_hPieceWnd, NULL, NULL);
 }
 
-/*!@function Move
-*******************************************************************************
-功能: 在棋盘上显示棋子的移动过程
-参数: path [in] 棋子移动的路径
-******************************************************************************/
 void CMacPiece::Move(PATH path)
 {
     while(CChessPiece::s_bIsMoving == true)
@@ -142,10 +108,6 @@ void CMacPiece::Move(PATH path)
     CreateThread(NULL, 0, ShowMoving, m_hPieceWnd, NULL, NULL);
 }
 
-/*!@function Fly
-*******************************************************************************
-功能: 机器棋子用来试探飞行吃子,用于寻找是否有可以吃子的路径,即飞行路径
-******************************************************************************/
 void CMacPiece::Fly()
 {
     m_path.Fly(m_pos);
@@ -156,30 +118,20 @@ HWND CManPiece::s_hFlagWnd = NULL;
 /* 用于记录当前被人选中的棋子所对应的对象,取值为人的棋子对角创建时指定的固定索引 */
 int CManPiece::s_nCurBeSelectedPieceIndex = 0;
 
-/*!@function CManPiece
-*******************************************************************************
-功能: Constructor of CManPiece
-参数: c_nIdx [in] 固定索引,用于唯一标识当前被创建的对象
-******************************************************************************/
 CManPiece::CManPiece(const int c_nIdx) : CChessPiece(c_nIdx)
 {}
 
-/*!@function New
-*******************************************************************************
-功能: 创建一个新的人方棋子
-参数: pos [in] 棋子的初始位置
-******************************************************************************/
 void CManPiece::New(POSITION pos)
 {
     m_pos = pos; // 记录当前棋子位置
-    g_board[pos].nCurPieceIdx = this->m_cnIdx;
+    g_board[pos].nCurPieceIdx = this->m_c_nIdx;
 
     m_hPieceWnd = CreateWindowEx(NULL, TEXT("BUTTON"), NULL,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
         x_table[pos], y_table[pos],
         PIECE_WIDTH, PIECE_HEIGHT,
         g_hBoardWnd,
-        (HMENU)((int)(m_cnIdx + 100)),
+        (HMENU)((int)(m_c_nIdx + 100)),
         g_hInst, NULL
         );
 
@@ -193,11 +145,6 @@ void CManPiece::New(POSITION pos)
         SetClassLong( m_hPieceWnd, GCL_HCURSOR, (LONG)hCur); // 重设光标在按钮上的形状为手形
 }
 
-/*!@function Move
-*******************************************************************************
-功能: 在棋盘上显示人方棋子的移动过程
-参数: c_direct [in] 指定移动方向
-******************************************************************************/
 void CManPiece::Move(const DIRECTION  c_direct)
 {
     CChessPiece::s_bIsMoving = true;
@@ -210,13 +157,9 @@ void CManPiece::Move(const DIRECTION  c_direct)
     CreateThread(NULL, 0, ShowMoving, m_hPieceWnd, NULL, NULL);
 }
 
-/*!@function BeSelected
-*******************************************************************************
-功能: 当玩家鼠标选中一颗棋子时调用,用于搜索该棋子所能走和吃子的所有路径,以供玩家选择
-******************************************************************************/
 void CManPiece::BeSelected()
 {
-    s_nCurBeSelectedPieceIndex = m_cnIdx;
+    s_nCurBeSelectedPieceIndex = m_c_nIdx;
 
     if (s_hFlagWnd != NULL)
     {

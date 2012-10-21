@@ -1,120 +1,127 @@
+/*!@file Evaluation.cpp
+*******************************************************************************
+功能: 机器走子算法文件
+作者: rookie2(rookie2@163.com)
+描述:
+最后修改日期: 2012年10月21日
+******************************************************************************/
 
 #include "stdafx.h"
 #include "Evaluation.h"
 #include "CChessPiece.h"
 
+/**
+ * 前置声明部分
+ */
 bool IsInnerOrbitOk();
 bool InnerOrbitAddPiece();
 bool DoubleOrbitAddPiece();
 void EvalutePath(const PATH cpath);
 bool PrepareForAttack();
 
-// 测试用
-void     AddLog(TCHAR *str);
+/*
+bool PrepareForAttack()
+{
+    PATH path;
+    int nSumOfUpleft  = (g_board[1].nKind + g_board[ 6].nKind + g_board[ 7].nKind) / 21,
+        nSumOfUpright = (g_board[4].nKind + g_board[10].nKind + g_board[11].nKind) / 21;
 
-//
-//bool PrepareForAttack()
-//{
-//    PATH path;
-//    int nSumOfUpleft  = (g_board[1].nKind + g_board[ 6].nKind + g_board[ 7].nKind) / 21,
-//        nSumOfUpright = (g_board[4].nKind + g_board[10].nKind + g_board[11].nKind) / 21;
-//
-//    if ( (g_board[25].nKind == NULL_PIECE && g_board[19].nKind == NULL_PIECE) ||
-//         ( (g_board[24].nKind + g_board[25].nKind + g_board[31].nKind) <= (g_board[28].nKind + g_board[29].nKind + g_board[34].nKind) )
-//       ) // 开左上角
-//    {
-//        if (nSumOfUpleft == 2 || nSumOfUpleft == 3) // 不是一个棋子
-//        {
-//
-//            if (g_board[6].nKind - g_board[12].nKind == MACHINE_PIECE)
-//            {
-//                path.push_back(DOWN);
-//                path.push_back(6);
-//                path.push_back(12);
-//                g_mac[g_board[6].nCurPieceIdx].Move(path);
-//                return true;
-//            }
-//            else if (g_board[1].nKind - g_board[2].nKind == MACHINE_PIECE)
-//            {
-//                path.push_back(RIGHT);
-//                p.push_back(1);
-//                p.push_back(2);
-//            }
-//            else if (g_board[7].nKind - g_board[14].nKind == MACHINE_PIECE)
-//            {
-//                p.push_back(DOWNRIGHT);
-//                p.push_back(7);
-//                p.push_back(14);
-//            }
-//        }
-//        else // 拐角处中人一颗棋子
-//        {
-//            if (g_board[1].nKind - g_board[7].nKind == MACHINE_PIECE)
-//            {
-//                p.push_back(DOWN);
-//                p.push_back(1);
-//                p.push_back(7);
-//                g_mac[g_board[1].nCurPieceIdx].Move(p);
-//                return;
-//            }
-//            else if (g_board[6].nKind - g_board[7].nKind == MACHINE_PIECE)
-//            {
-//                p.push_back(RIGHT);
-//                p.push_back(6);
-//                p.push_back(7);
-//                g_mac[g_board[6].nCurPieceIdx].Move(p);
-//                return;
-//            }
-//        }
-//    }
-//    else // 开右上角 
-//    {
-//
-//    }
-//
-//    map<int,int>mapInnerOrbitValue;
-//    int nResult = 0; // 最终拐角
-//    mapInnerOrbitValue.insert( pair<int,int>(
-//        (g_board[24].nKind + g_board[25].nKind + g_board[31].nKind) / 21, DOWNLEFT) );
-//    mapInnerOrbitValue.insert( pair<int,int>(
-//        (g_board[28].nKind + g_board[29].nKind + g_board[34].nKind) / 21, DOWNRIGHT) );
-//
-//    int nSum;
-//    map<int,int>::iterator iter;
-//    DIRECTION direct = -1;
-//    for(iter = mapInnerOrbitValue.begin(); iter!=mapInnerOrbitValue.end(); iter++)
-//    {
-//        nSum = iter->first;
-//        if(nSum != 0)
-//        {
-//            direct = iter->second;
-//            break;
-//        }
-//    }
-//    PATH p;
-//    switch(direct)
-//    {
-//        case UPLEFT:
-//            
-//            break;
-//        case UPRIGHT:
-//            break;
-//        case DOWNLEFT:
-//            break;
-//        case DOWNRIGHT:
-//            break;
-//        default: // 没有
-//            break;
-//    } // End of switch
-//
-//
-//
-//
-//
-//
-//    return false;
-//}
-// 判断内轨的双方棋子总数之差，机器方多则返回true,反之为false
+    if ( (g_board[25].nKind == NULL_PIECE && g_board[19].nKind == NULL_PIECE) ||
+         ( (g_board[24].nKind + g_board[25].nKind + g_board[31].nKind) <= (g_board[28].nKind + g_board[29].nKind + g_board[34].nKind) )
+       ) // 开左上角
+    {
+        if (nSumOfUpleft == 2 || nSumOfUpleft == 3) // 不是一个棋子
+        {
+
+            if (g_board[6].nKind - g_board[12].nKind == MACHINE_PIECE)
+            {
+                path.push_back(DOWN);
+                path.push_back(6);
+                path.push_back(12);
+                g_mac[g_board[6].nCurPieceIdx].Move(path);
+                return true;
+            }
+            else if (g_board[1].nKind - g_board[2].nKind == MACHINE_PIECE)
+            {
+                path.push_back(RIGHT);
+                p.push_back(1);
+                p.push_back(2);
+            }
+            else if (g_board[7].nKind - g_board[14].nKind == MACHINE_PIECE)
+            {
+                p.push_back(DOWNRIGHT);
+                p.push_back(7);
+                p.push_back(14);
+            }
+        }
+        else // 拐角处中人一颗棋子
+        {
+            if (g_board[1].nKind - g_board[7].nKind == MACHINE_PIECE)
+            {
+                p.push_back(DOWN);
+                p.push_back(1);
+                p.push_back(7);
+                g_mac[g_board[1].nCurPieceIdx].Move(p);
+                return;
+            }
+            else if (g_board[6].nKind - g_board[7].nKind == MACHINE_PIECE)
+            {
+                p.push_back(RIGHT);
+                p.push_back(6);
+                p.push_back(7);
+                g_mac[g_board[6].nCurPieceIdx].Move(p);
+                return;
+            }
+        }
+    }
+    else // 开右上角 
+    {
+
+    }
+
+    map<int,int>mapInnerOrbitValue;
+    int nResult = 0; // 最终拐角
+    mapInnerOrbitValue.insert( pair<int,int>(
+        (g_board[24].nKind + g_board[25].nKind + g_board[31].nKind) / 21, DOWNLEFT) );
+    mapInnerOrbitValue.insert( pair<int,int>(
+        (g_board[28].nKind + g_board[29].nKind + g_board[34].nKind) / 21, DOWNRIGHT) );
+
+    int nSum;
+    map<int,int>::iterator iter;
+    DIRECTION direct = -1;
+    for(iter = mapInnerOrbitValue.begin(); iter!=mapInnerOrbitValue.end(); iter++)
+    {
+        nSum = iter->first;
+        if(nSum != 0)
+        {
+            direct = iter->second;
+            break;
+        }
+    }
+    PATH p;
+    switch(direct)
+    {
+        case UPLEFT:
+            
+            break;
+        case UPRIGHT:
+            break;
+        case DOWNLEFT:
+            break;
+        case DOWNRIGHT:
+            break;
+        default: // 没有
+            break;
+    } // End of switch
+
+    return false;
+}
+*/
+
+/*!@function IsInnerOrbitOk
+*******************************************************************************
+功能: 判断内轨的双方棋子总数之差，机器方多则返回true,反之为false
+******************************************************************************/
 bool IsInnerOrbitOk()
 {
     int nSum = g_board[1].nKind + g_board[4].nKind;
@@ -131,7 +138,11 @@ bool IsInnerOrbitOk()
     if(nMacNum - nManNum >= 0)  return true;
     else                        return false;
 }
-// 向内轨添加棋子
+
+/*!@function InnerOrbitAddPiece
+*******************************************************************************
+功能: 向内轨添加棋子
+******************************************************************************/
 bool InnerOrbitAddPiece()
 {
     PATH path;
@@ -691,6 +702,11 @@ bool InnerOrbitAddPiece()
 
     return false;
 }
+
+/*!@function DoubleOrbitAddPiece
+*******************************************************************************
+功能: 双轨添加棋子
+******************************************************************************/
 bool DoubleOrbitAddPiece()
 {
     PATH path;
@@ -789,7 +805,11 @@ bool DoubleOrbitAddPiece()
 
     return false;
 }
-// 可吃子路径打分
+
+/*!@function EvalutePath
+*******************************************************************************
+功能: 给可吃子路径打分, 判断哪条吃子路径最优走子考虑
+******************************************************************************/
 void EvalutePath(const PATH cpath)
 {
     int nValue = 0;
