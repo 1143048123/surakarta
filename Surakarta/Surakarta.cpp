@@ -1,19 +1,22 @@
-/*!@file
+/*!@file Sura.cpp
 *******************************************************************************
-文件名: Sura.cpp
-功能:   完成对用户界面的绘制,对用户的操作进行响应和处理
-作者:   姚玉亮
+功能:   程序的入口点.完成对用户界面的绘制,对用户的操作进行响应和处理,以及全局的控制
+作者:   姚玉亮(rookie2@163.com)
 备注:
+最近修改日期: 2012年10月21日
+修改内容: 注释部分
 ******************************************************************************/
 
 #include "stdafx.h"
 #include "surakarta.h"
 #include "CChessPiece.h"
-////////////////////////////////////////////////////////////////////////
-// 全局变量的定义
+
+/**
+ * 全局变量的定义及初始化
+ */
+
 HINSTANCE   g_hInst;
 HWND        g_hBoardWnd;
-//HDC         g_memPieceWndDC;
 HWND        g_hLogWnd;
 ChessBoard  g_board[36];
 CPath       g_path;
@@ -26,22 +29,27 @@ CManPiece   g_man[12] = { CManPiece(0), CManPiece(1), CManPiece(2), CManPiece(3)
                           CManPiece(4), CManPiece(5), CManPiece(6), CManPiece(7),
                           CManPiece(8), CManPiece(9), CManPiece(10), CManPiece(11)
                         };
+/**
+ * 声明局部变量
+ */
 
 TCHAR     szMainWndClassName[ MAX_LOADSTRING ]; // 注册主窗口的类名
 TCHAR     szMainWndTitle    [ MAX_LOADSTRING ]; // 主窗口标题
 HDC       memMainWndDC; // 主窗口内存Device Context
+HBITMAP   hBoardBmp;    // 棋盘图,即用于棋盘的背景图片资源
+HBITMAP   hMacPieceBmp; // 机器方棋子位图
+HBITMAP   hManPieceBmp; // 玩家的棋子位图
+HBITMAP   hPathWndBmp;  // 可走子位置的标记,用于区分可走位置与不可走位置
 
-HBITMAP   hBoardBmp;    // 棋盘图
-HBITMAP   hMacPieceBmp; // 我方棋子位图
-HBITMAP   hManPieceBmp; // 玩家棋子位图
-HBITMAP   hPathWndBmp;  // 可走子位置的标记
-//<<<<<<<<<<<<<<<<<<<<<<<<<< Forward declarations <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// TODO: 前置声明在此处添加
-ATOM     WndRegisterClass(HINSTANCE);  // 注册窗口类
-BOOL     InitInstance(HINSTANCE, int); // 初始化程序实例
-LRESULT  CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM); // 主窗口窗口过程函数
+/**
+ * 函数前置声明在此处添加
+ */
+
+ATOM     WndRegisterClass(HINSTANCE);
+BOOL     InitInstance(HINSTANCE, int);
+LRESULT  CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR  CALLBACK GetServerIp(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-VOID     RepaintChessboard(HDC , RECT);  // 重绘棋盘
+VOID     RepaintChessboard(HDC , RECT);
 DWORD    CALLBACK MachineOffice(LPVOID param);
 void     AddLog(TCHAR *str);
 bool     IsInnerOrbitOk();
@@ -49,7 +57,7 @@ bool     InnerOrbitAddPiece();
 bool     DoubleOrbitAddPiece();
 bool     PrepareForAttack();
 
-/*!@main function
+/*!@function main
 *******************************************************************************
 功能: 程序入口,
      该函数完成5部分内容：
@@ -64,7 +72,10 @@ int WINAPI WinMain( HINSTANCE hInstance,
                     LPSTR     szCmdLine,
                     int       nShowCmd )
 {
-    // 加载所需资源
+    /**
+     * 加载及初始化所需资源
+     */
+
     LoadString( hInstance, IDS_WNDCLASSNAME, szMainWndClassName, MAX_LOADSTRING );
     LoadString( hInstance, IDS_WNDTITLE,     szMainWndTitle,     MAX_LOADSTRING );
     
@@ -87,7 +98,7 @@ int WINAPI WinMain( HINSTANCE hInstance,
     }
     AddLog(TEXT("==========游戏开始==========="));
     
-    // 消息循环
+    // 进入消息循环
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
     {
@@ -98,12 +109,10 @@ int WINAPI WinMain( HINSTANCE hInstance,
     return msg.wParam;
 }
 
-/*!@function
+/*!@function WndRegisterClass
 *******************************************************************************
-功能:   注册棋盘窗口类
-函数名: WndRegisterClass
+功能:   注册棋盘的窗口类
 参数:   hInstance [in] 程序实例
-返回值: 注册成功的窗口类
 ******************************************************************************/
 ATOM WndRegisterClass(HINSTANCE hInstance)
 {
@@ -112,50 +121,45 @@ ATOM WndRegisterClass(HINSTANCE hInstance)
     wcex.cbSize     = sizeof(WNDCLASSEX);
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
-    wcex.hCursor    = LoadCursor(NULL, IDC_ARROW);
-    wcex.hIcon      = LoadIcon(hInstance, (LPCWSTR)IDI_APP);
-    wcex.hIconSm    = LoadIcon(hInstance, (LPCWSTR)IDI_APP);
+    wcex.hCursor    = LoadCursor(NULL, IDC_ARROW); // 光标
+    wcex.hIcon      = LoadIcon(hInstance, (LPCWSTR)IDI_APP); // 程序图标
+    wcex.hIconSm    = LoadIcon(hInstance, (LPCWSTR)IDI_APP); // 程序小图标
     wcex.hInstance  = hInstance;
     wcex.hbrBackground = NULL;
-    wcex.lpfnWndProc   = MainWndProc;
-    wcex.lpszClassName = szMainWndClassName;
-    wcex.lpszMenuName  = MAKEINTRESOURCE(IDR_MENU1);
+    wcex.lpfnWndProc   = MainWndProc; // 指定窗口过程函数
+    wcex.lpszClassName = szMainWndClassName; // 窗口类名
+    wcex.lpszMenuName  = MAKEINTRESOURCE(IDR_MENU1); // 菜单
     wcex.style = CS_DROPSHADOW;
 
     return RegisterClassEx(&wcex);
 }
 
 
-/*!@function
+/*!@function InitInstance
 *******************************************************************************
-功能: 完成程序实例的初始化工作
-        包括：
-        1.将实例句柄存储在全局变量中
-        2.创建具有半透明属性的主窗口
-        3.使主窗口居中
-        4.画出所有棋子
-        5.显示主窗口
-函数名: InitInstance
-参数: hInstance [in] 实例句柄
+功能: 完成程序实例的初始化, 以及UI的初始化和显示工作
+参数: hInstance [in] 程序实例句柄
       nShowCmd [in] 程序窗口初始显示状态
+返回值: 成功返回true, 失败返回false.
 ******************************************************************************/
 BOOL InitInstance(HINSTANCE hInstance, int nShowCmd)
 {
     g_hInst = hInstance; // 将实例句柄存储在全局变量中
     // 创建主窗口,即棋盘
     g_hBoardWnd = CreateWindowEx(NULL, szMainWndClassName, szMainWndTitle,
-                                WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-                                CW_USEDEFAULT, 0, CLIENT_WIDTH, CLIENT_HEIGHT + 60,
-                                NULL, NULL, hInstance, NULL);
-    if (!g_hBoardWnd)
+        WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CW_USEDEFAULT, 0, CLIENT_WIDTH, CLIENT_HEIGHT + 60,
+        NULL, NULL, hInstance, NULL);
+    if (!g_hBoardWnd) // 如果主窗口创建失败
     {
         MessageBox(NULL, TEXT("窗口初始化失败"), TEXT("Error"), MB_OK);
         return FALSE;
     }
     // 调整客户区长宽，及位置
     int nWidth  = CLIENT_WIDTH + GetSystemMetrics(SM_CXFRAME);
-    int nHeight = CLIENT_HEIGHT + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU)
-                 + GetSystemMetrics(SM_CYFRAME) + LOG_WND_HEIGHT;
+    int nHeight = CLIENT_HEIGHT + GetSystemMetrics(SM_CYCAPTION)
+                + GetSystemMetrics(SM_CYMENU)
+                + GetSystemMetrics(SM_CYFRAME) + LOG_WND_HEIGHT;
      // 宽度和高度减2，用于调整画面
     SetWindowPos(g_hBoardWnd, NULL, 0, 0, nWidth-2, nHeight-2, SWP_NOMOVE);
 
@@ -169,14 +173,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nShowCmd)
         0, 600, CLIENT_WIDTH, LOG_WND_HEIGHT,
         g_hBoardWnd, NULL, g_hInst, NULL);
 
-    // 初始化棋盘数据
+    // 初始化棋盘数据部分
     for(int i=0; i<=11; i++)
         g_board[i].nKind = MACHINE_PIECE;
     for(int i=12; i<=23; i++)
         g_board[i].nKind = NULL_PIECE;
     for(int i=24; i<=35; i++)
         g_board[i].nKind = MAN_PIECE;
-
     for(int i=0; i<=11; i++)
     {
         g_board[i].nCurPieceIdx = i; // 机器棋子下标
@@ -184,8 +187,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nShowCmd)
         g_board[i+24].nCurPieceIdx = i; // 人棋子下标
         g_board[i+24].nPrevPieceIdx = i;
     }
-    //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    int nullOrbitPos_table[]   = {0, 5, 30, 35}; // 共4个位置
+    // 初始化表内容
+    int nullOrbitPos_table[]   = {0, 5, 30, 35}; // 不在轨道上,共4个位置
     int innerOrbitPos_table[]  = {1, 4,  6,  7, 10, 11, 24, 25, 28, 29, 31, 34}; // 共12个位置
     int outerOrbitPos_table[]  = {2, 3, 12, 14, 15, 17, 18, 20, 21, 23, 32, 33}; // 共12个位置
     int doubleOrbitPos_table[] = {8, 9, 13, 16, 19, 22, 26, 27}; // 共8个位置
@@ -200,25 +203,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nShowCmd)
         g_board[ outerOrbitPos_table[i] ].chOrbit = OUTER_ORBIT;
     // 双轨
     for (int i=0; i<8; i++)
-        g_board[ doubleOrbitPos_table[i] ].chOrbit = DOUBLE_ORBIT;
-  
-    //<<<<<<<<<<<<<<<<<<<< 画出所有的棋子<<<<<<<<<<<<<<<<<<<<<<<<
+        g_board[ doubleOrbitPos_table[i] ].chOrbit = DOUBLE_ORBIT;  
+    // 画出所有的棋子
     for(int i=0; i<12; i++)
     {
         g_mac[i].New((char)i);
         g_man[i].New( (char)(24 + i) );
     }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
     ShowWindow( g_hBoardWnd, nShowCmd );
     UpdateWindow( g_hBoardWnd );
 
     return TRUE;
 }
 
-/*!@function
+/*!@function AddLog
 *******************************************************************************
-功能: 向文本框(主窗口上的状态信息栏)中追加文本
-函数名: AddLog
+功能: 向文本框(主窗口上的日志记录窗口)中追加文本(日志)
 参数: pText [in] 要追加的文本
 ******************************************************************************/
 void AddLog(TCHAR *pText)
@@ -289,8 +290,9 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             wmHWnd = (HWND)lParam;   // ID所对应的窗口句柄
             switch( wmID )
             {
-                //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                // 当玩家点击玩家的棋子时
+                /**
+                 * 当玩家点击玩家的棋子时
+                 */
                 case IDM_MAN0:
                     g_man[0].BeSelected();
                     break;
@@ -327,8 +329,10 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 case IDM_MAN11:
                     g_man[11].BeSelected();
                     break;
-                //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                // 点玩家点击所列出的路径之一时
+
+                /**
+                 * 点玩家点击所列出的路径之一时
+                 */
                 case IDM_UP_TO_FLY:
                     g_man[CManPiece::s_nCurBeSelectedPieceIndex].Move(UP_TO_FLY);
                     CreateThread(NULL, 0, MachineOffice, NULL, NULL, NULL);
@@ -345,7 +349,6 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     g_man[CManPiece::s_nCurBeSelectedPieceIndex].Move(LEFT_TO_FLY);
                     CreateThread(NULL, 0, MachineOffice, NULL, NULL, NULL);
                     break;
-
                 case IDM_UP:
                     g_man[CManPiece::s_nCurBeSelectedPieceIndex].Move(UP);
                     CreateThread(NULL, 0, MachineOffice, NULL, NULL, NULL);
@@ -379,52 +382,17 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     CreateThread(NULL, 0, MachineOffice, NULL, NULL, NULL);
                     break;
 
+                /**
+                 * 当用户点击菜单项时
+                 */
                 case ID_FILE_EXIT:
                     SendMessage(hWnd, WM_CLOSE, NULL, NULL);
                     break;
-                // 菜单选项相应操作
-                    /*
-                case ID_FILE_NEWGAME:
-                    //ResetDate( 1 ); // 重置数据部分
-                    // 销毁所有的棋子
-                    EnumChildWindows( hWnd, (WNDENUMPROC)DestroyAllChessman, TRUE );
-                    // 重新加载双方棋子位图和路径提示位图
-                    hMacPieceBmp = (HBITMAP)LoadImage( g_hInst, (LPCWSTR)IDB_ME, IMAGE_BITMAP,
-                        PIECE_WIDTH, PIECE_HEIGHT, LR_DEFAULTCOLOR);
-                    hManPieceBmp = (HBITMAP)LoadImage( hInst, (LPCWSTR)IDB_PLAYER,
-                        IMAGE_BITMAP, CHESSMAN_WIDTH, CHESSMAN_HEIGHT, LR_DEFAULTCOLOR);
-                    hPathWndBmp = (HBITMAP)LoadImage( hInst, (LPCWSTR)IDB_PATH, IMAGE_BITMAP,
-                        PATHWND_WIDTH, PATHWND_HEIGHT, LR_DEFAULTCOLOR);
-                    DestroyPathWindow(); // 销毁所有可走子位置的标记
-                    // 依次销毁所有棋子按钮
-                    CreateChessman( hWnd ); // 根据棋盘数据创建相应棋子
-                    break;
-                case ID_FILE_OPEN_GAME:
-                    break;
-                case ID_FILE_SAVE_GAME:
-                    break;
-                case ID_FILE_EXIT:
-                    SendMessage(hWnd, WM_CLOSE, NULL, NULL);
-                    break;
-
-                case ID_EDIT_BACKWARD:
-                    break;
-                case ID_EDIT_FORWARD:
-                    break;
-                case ID_VS_CREATE_GAME:
-                    nTurn = ME_CHESSMAN;
-                    EnumChildWindows(hWnd, DisablePlayerChessman, TRUE); // 禁止玩家点击棋子
-                    CreateThread(NULL, 0, Server, hWnd, NULL, NULL);
-                    break;
-                case ID_VS_JOIN_GAME:
-                    DialogBox(hInst, (LPCTSTR)IDD_GET_SERVER_IP, hWnd, (DLGPROC)GetServerIp);
-                    break;
-                */
                 default:
                     return DefWindowProc( hWnd, uMsg, wParam, lParam );
             }
             break;
-        case WM_EATEN:
+        case WM_EATEN: // 吃子, 对被吃棋子的窗口进行销毁
             wmHWnd = (HWND)lParam;
             DestroyWindow(wmHWnd);
             break;
@@ -441,49 +409,18 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             DeleteObject( hManPieceBmp );
             DeleteObject( hPathWndBmp );
             DeleteDC( memMainWndDC );
-            //DeleteDC( g_memPieceWndDC );
             PostQuitMessage( 0 );
             break;
         default:
             return DefWindowProc( hWnd, uMsg, wParam, lParam );
     }
+
     return 0;
 }
-/*
-// “关于”框的消息处理程序。
-INT_PTR CALLBACK GetServerIp(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-    
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
 
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK )
-		{
-            // 读取IP地址框内容到client::szServerIp
-            GetWindowText(GetDlgItem(hDlg, IDC_IPADDRESS1), client::szServerIp, 16);
-            client::W2A(); // 将IP地址由TCHAR型转换成char*型, 存入client::pszServerIp中
-            CreateThread(NULL, 0, Client, GetParent(hDlg), NULL, NULL); // 启动客户端线程
-            EndDialog(hDlg, LOWORD(wParam));
-		    return (INT_PTR)TRUE;
-		} else if ( LOWORD(wParam) == IDCANCEL )
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-	}
-	return (INT_PTR)FALSE;
-}
-*/
-
-/*!@function
+/*!@function RepaintChessboard
 *******************************************************************************
 功能: 重绘主窗口
-函数名: RepaintChessboard
 参数: hdc [in] 需要绘图的窗口的HDC
       rect [in] 需要绘图的窗口的RECT
 ******************************************************************************/
@@ -493,7 +430,12 @@ VOID RepaintChessboard( HDC hdc , RECT rect)
     BitBlt(hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memMainWndDC, 0, 0, SRCCOPY );
 }
 
-// 机器棋子走子总部
+/*!@function MachineOffice
+*******************************************************************************
+功能: 线程函数.
+     机器棋子走子总部, 用于告知机器如何走子, 总结所有机器走子算法有结果, 并择优启用
+参数: 无用
+******************************************************************************/
 DWORD CALLBACK MachineOffice(LPVOID param)
 {
     //<PRE> 第一步：搜索所有可吃子路径，确定是否吃子
@@ -523,13 +465,19 @@ DWORD CALLBACK MachineOffice(LPVOID param)
         }
     }
 
-    //</PRE> 第一步：搜索所有可吃子路径，确定是否吃子
+    /**
+     * 第一步：搜索所有可吃子路径，确定是否吃子
+     */
+    // TODO: 在此添加
 
-    //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    //</PRE> 第二步：开局时展开攻击阵式
-    /* if (PrepareForAttack() == true)
-        return 1;*/
-    //</PRE> 第二步：开局时展开攻击阵式
+    /**
+     * 第二步：开局时展开攻击阵式
+     */
+    // TODO: 在此添加
+    /*
+    if (PrepareForAttack() == true)
+        return 1;
+    */
 
     PATH p0;
     if (g_board[25].nKind - g_board[19].nKind == 21)
